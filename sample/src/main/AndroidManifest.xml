@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.weight68kg.droidcore">
+    package="com.weight68kg.sample">
 
     <application
         android:allowBackup="true"
