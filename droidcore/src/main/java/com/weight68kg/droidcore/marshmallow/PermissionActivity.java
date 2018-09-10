@@ -8,14 +8,15 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AndroidException;
+import android.util.AndroidRuntimeException;
 import android.view.WindowManager;
 import android.widget.Toast;
-
-import com.weight68kg.droidcore.R;
 
 
 public class PermissionActivity extends AppCompatActivity {
@@ -26,7 +27,6 @@ public class PermissionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_permission);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         initView();
         initData();
@@ -87,7 +87,11 @@ public class PermissionActivity extends AppCompatActivity {
                 message = getResources().getText((Integer) permissionDes).toString();
             }
         }
-        if (permissions == null || permissions.length == 0) return;
+
+
+        if (permissions == null || permissions.length == 0) {
+            throw new IllegalArgumentException("Permissions is null");
+        }
         this.permissionRunnable = runnable;
         if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.M) || checkPermissionGranted(permissions)) {
             if (permissionRunnable != null) {
@@ -117,7 +121,6 @@ public class PermissionActivity extends AppCompatActivity {
         return flag;
     }
 
-    boolean b = false;
 
     /**
      * @param permissionDes
@@ -173,7 +176,7 @@ public class PermissionActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == permissionRequestCode) {
-            if (verifyPermissions(grantResults)) {
+            if (verifyPermissionsGranted(grantResults)) {
                 if (permissionRunnable != null) {
                     permissionRunnable.hasPermission();
                     permissionRunnable = null;
@@ -223,7 +226,7 @@ public class PermissionActivity extends AppCompatActivity {
 
     }
 
-    public boolean verifyPermissions(int[] grantResults) {
+    public boolean verifyPermissionsGranted(int[] grantResults) {
         if (grantResults.length < 1) {
             return false;
         }
@@ -246,6 +249,7 @@ public class PermissionActivity extends AppCompatActivity {
         }
         return false;
     }
+
 
     @Override
     public void onDestroy() {
