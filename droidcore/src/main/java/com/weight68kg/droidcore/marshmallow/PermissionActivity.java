@@ -7,14 +7,13 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.AndroidException;
-import android.util.AndroidRuntimeException;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -184,7 +183,6 @@ public class PermissionActivity extends AppCompatActivity {
                 }
             } else {
                 if (verifyPermissionsDenied(grantResults)) {
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(this)
                             .setTitle("提示")
                             .setMessage("是否手动开启权限")
