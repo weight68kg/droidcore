@@ -1,4 +1,4 @@
-package com.weight68kg.droidcore.notify;
+package com.weight68kg.droidcore.utils.notify;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -6,6 +6,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
@@ -15,18 +17,71 @@ import com.weight68kg.droidcore.R;
 /**
  * Created by weight68kg on 2018/9/10.
  */
-
 public class Notification26Utils extends NotifycationBase implements NotifycationOb {
+
+    Notification.Builder mBuilder;
 
     public Notification26Utils(Context base) {
         super(base);
+        createNotificationChannel();
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    @Override
+    public void converBuilder(NotificationUtils.Builder builder) {
+        mBuilder = new Notification.Builder(getApplicationContext(), id)
+                .setContentTitle(builder.title)// 设置通知栏标题
+                .setContentText(builder.content)// 设置通知栏显示内容
+                .setWhen(System.currentTimeMillis())// 通知产生的时间，会在通知信息里显示，一般是系统获取到的时间
+                .setPriority(Notification.PRIORITY_HIGH) // 设置该通知优先级
+                .setSmallIcon(android.R.drawable.stat_notify_more)// 设置通知小ICON
+                .setAutoCancel(true);// 设置这个标志当用户单击面板就可以让通知将自动取消
     }
 
     @Override
-    public Notification getNotification(String title, String content) {
-        createNotificationChannel();
-        return getChannelNotification(title, content).build();
+    public Notification getNotificationInstance(NotificationUtils.Builder builder) {
+        converBuilder(builder);
+        return getChannelNotification();
     }
+
+    @Override
+    public Notification getNormalMoreLine(NotificationUtils.Builder builder) {
+        converBuilder(builder);
+        return new Notification.BigTextStyle(mBuilder).bigText(builder.content).build();
+    }
+
+    @Override
+    public Notification getMessageList(NotificationUtils.Builder builder) {
+        converBuilder(builder);
+//        Intent deleteIntent = new Intent(mContext, DeleteService.class);
+//        int deleteCode = (int) SystemClock.uptimeMillis();
+//        PendingIntent deletePendingIntent = PendingIntent.getService(mContext,
+//                deleteCode, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        cBuilder.setDeleteIntent(deletePendingIntent);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), builder.SmallIcon);
+        mBuilder.setLargeIcon(bitmap);
+
+        //cBuilder.setVibrate(new long[]{0, 100, 200, 300});// 设置自定义的振动
+        // builder.setSound(Uri.parse("file:///sdcard/click.mp3"));
+
+        // 设置通知样式为收件箱样式,在通知中心中两指往外拉动，就能出线更多内容，但是很少见
+        //cBuilder.setNumber(messageList.size());
+        Notification.InboxStyle inboxStyle = new Notification.InboxStyle();
+        for (String msg : builder.messageList) {
+            inboxStyle.addLine(msg);
+        }
+        inboxStyle.setSummaryText("[" + builder.messageList.size() + "条]" + builder.title);
+        mBuilder.setStyle(inboxStyle);
+        return getChannelNotification();
+    }
+
+    @Override
+    public Notification getBigIcon(NotificationUtils.Builder builder) {
+        return null;
+    }
+
+
+
 
     /**
      * 创建通知渠道
@@ -37,6 +92,12 @@ public class Notification26Utils extends NotifycationBase implements Notifycatio
         getManager().createNotificationChannel(channel);
     }
 
+
+
+    @TargetApi(Build.VERSION_CODES.O)
+    public Notification getChannelNotification() {
+        return mBuilder.build();
+    }
 
     @TargetApi(Build.VERSION_CODES.O)
     public Notification.Builder getChannelNotification(String title, String content) {

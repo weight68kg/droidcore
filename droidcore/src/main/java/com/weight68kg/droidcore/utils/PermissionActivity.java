@@ -1,4 +1,4 @@
-package com.weight68kg.droidcore.marshmallow;
+package com.weight68kg.droidcore.utils;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
