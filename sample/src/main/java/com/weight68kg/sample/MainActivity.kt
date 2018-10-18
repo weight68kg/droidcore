@@ -1,18 +1,11 @@
 package com.weight68kg.sample
 
 import android.Manifest
-import android.app.Notification
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
-import android.util.Log
-import android.view.View
 import android.widget.Toast
 import com.weight68kg.droidcore.marshmallow.PermissionActivity
-import com.weight68kg.droidcore.oreo.NotificationUtils
+import com.weight68kg.droidcore.notify.Notificationutils
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
@@ -37,14 +30,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         btn_natification.setOnClickListener {
-//            var notificationUtils = NotificationUtils(this)
-//                notificationUtils.createNotification()
-//
-//                    NotificationUtils(this).normalSingleLine("哈哈哈", "内容内容",1)
-//
-//            if (!NotificationUtils.isNotificationEnabled(this)){
-//                NotificationUtils.goToSet(this)
-//            }
+
+            Notificationutils(this).normalSingleLine("哈哈哈", "内容内容", 1)
+
+
 
         }
 
