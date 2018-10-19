@@ -5,8 +5,6 @@ import android.app.Notification;
 public interface NotifycationOb {
 
 
-    void converBuilder(NotificationUtils.Builder build);
-
     //单行
     Notification getNotificationInstance(NotificationUtils.Builder builder);
 
@@ -18,4 +16,9 @@ public interface NotifycationOb {
 
     //大图
     Notification getBigIcon(NotificationUtils.Builder builder);
+
+    //悬浮
+    Notification getHeadsUp(NotificationUtils.Builder builder);
+
+    Notification getButton(NotificationUtils.Builder builder);
 }

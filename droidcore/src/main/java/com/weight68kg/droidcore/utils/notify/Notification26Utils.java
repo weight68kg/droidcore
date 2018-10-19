@@ -1,5 +1,6 @@
 package com.weight68kg.droidcore.utils.notify;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -8,33 +9,46 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
 import com.weight68kg.droidcore.R;
+
+import static android.app.Notification.PRIORITY_HIGH;
+import static android.app.Notification.VISIBILITY_SECRET;
+import static android.app.NotificationManager.IMPORTANCE_HIGH;
+import static android.app.NotificationManager.IMPORTANCE_UNSPECIFIED;
+import static androidx.core.app.NotificationCompat.BADGE_ICON_SMALL;
 
 /**
  * Created by weight68kg on 2018/9/10.
  */
 public class Notification26Utils extends NotifycationBase implements NotifycationOb {
 
-    Notification.Builder mBuilder;
 
     public Notification26Utils(Context base) {
         super(base);
-        createNotificationChannel();
+
     }
 
     @TargetApi(Build.VERSION_CODES.O)
     @Override
-    public void converBuilder(NotificationUtils.Builder builder) {
-        mBuilder = new Notification.Builder(getApplicationContext(), id)
-                .setContentTitle(builder.title)// 设置通知栏标题
+    public NotificationCompat.Builder converBuilder(NotificationUtils.Builder builder) {
+        createNotificationChannel();
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        return mBuilder.setContentTitle(builder.title)// 设置通知栏标题
                 .setContentText(builder.content)// 设置通知栏显示内容
                 .setWhen(System.currentTimeMillis())// 通知产生的时间，会在通知信息里显示，一般是系统获取到的时间
-                .setPriority(Notification.PRIORITY_HIGH) // 设置该通知优先级
+                .setPriority(NotificationCompat.PRIORITY_HIGH) // 设置该通知优先级
                 .setSmallIcon(android.R.drawable.stat_notify_more)// 设置通知小ICON
+                .setTicker(builder.ticker)
+                .setSound(alarmSound)// 设置通知的提示音
+                .setBadgeIconType(BADGE_ICON_SMALL)
+                .setNumber(99)
                 .setAutoCancel(true);// 设置这个标志当用户单击面板就可以让通知将自动取消
     }
 
@@ -47,7 +61,7 @@ public class Notification26Utils extends NotifycationBase implements Notifycatio
     @Override
     public Notification getNormalMoreLine(NotificationUtils.Builder builder) {
         converBuilder(builder);
-        return new Notification.BigTextStyle(mBuilder).bigText(builder.content).build();
+        return new NotificationCompat.BigTextStyle(mBuilder).bigText(builder.content).build();
     }
 
     @Override
@@ -65,8 +79,10 @@ public class Notification26Utils extends NotifycationBase implements Notifycatio
         // builder.setSound(Uri.parse("file:///sdcard/click.mp3"));
 
         // 设置通知样式为收件箱样式,在通知中心中两指往外拉动，就能出线更多内容，但是很少见
-        //cBuilder.setNumber(messageList.size());
-        Notification.InboxStyle inboxStyle = new Notification.InboxStyle();
+//        mBuilder.setNumber(builder.messageList.size());
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+        inboxStyle.setBigContentTitle(builder.content);
+        inboxStyle.setSummaryText(builder.title);
         for (String msg : builder.messageList) {
             inboxStyle.addLine(msg);
         }
@@ -77,10 +93,35 @@ public class Notification26Utils extends NotifycationBase implements Notifycatio
 
     @Override
     public Notification getBigIcon(NotificationUtils.Builder builder) {
-        return null;
+        converBuilder(builder);
+        return getChannelNotification();
     }
 
+    @SuppressLint("WrongConstant")
+    @Override
+    public Notification getHeadsUp(NotificationUtils.Builder builder) {
+        converBuilder(builder);
+        if (builder.action.length > 0) {
+            for (NotificationCompat.Action a : builder.action) {
+                mBuilder.addAction(a);
+            }
+        }
+        mBuilder.setFullScreenIntent(builder.contentIntent,true);
+        Log.e("tag",builder.contentIntent+"");
+        mBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
+        return getChannelNotification();
+    }
 
+    @Override
+    public Notification getButton(NotificationUtils.Builder builder) {
+        converBuilder(builder);
+        if (builder.action.length > 0) {
+            for (NotificationCompat.Action a : builder.action) {
+                mBuilder.addAction(a);
+            }
+        }
+        return getChannelNotification();
+    }
 
 
     /**
@@ -88,10 +129,11 @@ public class Notification26Utils extends NotifycationBase implements Notifycatio
      */
     @TargetApi(Build.VERSION_CODES.O)
     private void createNotificationChannel() {
-        NotificationChannel channel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationChannel channel
+                = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH);
+        channel.setShowBadge(true);// 设置是否显示角标
         getManager().createNotificationChannel(channel);
     }
-
 
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -99,28 +141,7 @@ public class Notification26Utils extends NotifycationBase implements Notifycatio
         return mBuilder.build();
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
-    public Notification.Builder getChannelNotification(String title, String content) {
-        return new Notification.Builder(getApplicationContext(), id)
-                .setContentTitle(title)// 设置通知栏标题
-                .setContentText(content)// 设置通知栏显示内容
-                .setWhen(System.currentTimeMillis())// 通知产生的时间，会在通知信息里显示，一般是系统获取到的时间
-                .setPriority(Notification.PRIORITY_DEFAULT) // 设置该通知优先级
-                .setSmallIcon(android.R.drawable.stat_notify_more)// 设置通知小ICON
-                .setAutoCancel(true);// 设置这个标志当用户单击面板就可以让通知将自动取消
-    }
 
-    @TargetApi(Build.VERSION_CODES.O)
-    public Notification.Builder getChannelNotification(String title, String content, PendingIntent pendingIntent) {
-        return new Notification.Builder(getApplicationContext(), id)
-                .setContentTitle(title)// 设置通知栏标题
-                .setContentText(content)// 设置通知栏显示内容
-                .setContentIntent(pendingIntent)// 跳转意图
-                .setWhen(System.currentTimeMillis())// 通知产生的时间，会在通知信息里显示，一般是系统获取到的时间
-                .setPriority(Notification.PRIORITY_DEFAULT) // 设置该通知优先级
-                .setSmallIcon(android.R.drawable.stat_notify_more)// 设置通知小ICON
-                .setAutoCancel(true);// 设置这个标志当用户单击面板就可以让通知将自动取消
-    }
 
     /**
      * 设置在顶部通知栏中的各种信息
@@ -188,27 +209,5 @@ public class Notification26Utils extends NotifycationBase implements Notifycatio
         return builder;
 
     }
-
-
-    public void informShow(Context context, String title, String content,
-                           PendingIntent pendingIntent, int notifyId) {
-        // 获取状态通知栏管理
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        // 实例化通知栏构造器NotificationCompat.Builder
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
-
-        mBuilder.setContentTitle(title)// 设置通知栏标题
-                .setContentText(content)// 设置通知栏显示内容
-//                .setContentIntent(pendingIntent)// 跳转意图
-                // //设置通知栏点击意图
-                .setWhen(System.currentTimeMillis())// 通知产生的时间，会在通知信息里显示，一般是系统获取到的时间
-                .setPriority(Notification.PRIORITY_DEFAULT) // 设置该通知优先级
-                .setAutoCancel(true)// 设置这个标志当用户单击面板就可以让通知将自动取消
-                .setSmallIcon(R.mipmap.shanzhi);// 设置通知小ICON
-
-        Notification notify = mBuilder.build();
-        mNotificationManager.notify(notifyId + 1000, notify);
-    }
-
 
 }

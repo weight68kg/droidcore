@@ -2,8 +2,12 @@ package com.weight68kg.droidcore.utils.notify;
 
 import android.app.Notification;
 import android.content.Context;
+import android.graphics.BitmapFactory;
+
+import com.weight68kg.droidcore.R;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.view.ViewCompat;
 
 /**
  * Created by weight68kg on 2018/9/10.
@@ -17,13 +21,23 @@ public class Notification25Utils extends NotifycationBase implements Notifycatio
     }
 
     @Override
-    public void converBuilder(NotificationUtils.Builder build) {
-
+    public NotificationCompat.Builder converBuilder(NotificationUtils.Builder build) {
+        return mBuilder.setContentTitle(build.title)
+                .setContentText(build.content)
+                .setSmallIcon(build.SmallIcon != 0 ? build.SmallIcon : R.mipmap.shanzhi)
+                .setWhen(build.when)
+                .setContentIntent(build.contentIntent)
+                .setLargeIcon(BitmapFactory.decodeResource(getBaseContext().getResources(), build.largeIcon))
+                .setNumber(build.number)
+                .setPriority(build.priority)
+                .setTicker(build.ticker)
+                .setAutoCancel(build.autoCancel);
     }
 
     @Override
     public Notification getNotificationInstance(NotificationUtils.Builder builder) {
-        return getNotification_25(builder).build();
+        converBuilder(builder);
+        return getNotification_25();
     }
 
     @Override
@@ -41,23 +55,32 @@ public class Notification25Utils extends NotifycationBase implements Notifycatio
         return null;
     }
 
-
-    public NotificationCompat.Builder getNotification_25(NotificationUtils.Builder builder) {
-        return new NotificationCompat.Builder(getApplicationContext(), id)
-                .setContentTitle(builder.title)
-                .setContentText(builder.content)
-                .setSmallIcon(android.R.drawable.stat_notify_more)
-                .setAutoCancel(builder.autoCancel);
-
+    @Override
+    public Notification getHeadsUp(NotificationUtils.Builder builder) {
+        converBuilder(builder);
+        if (builder.action.length > 0) {
+            for (NotificationCompat.Action a : builder.action) {
+                mBuilder.addAction(a);
+            }
+        }
+        mBuilder.setFullScreenIntent(builder.contentIntent,true);
+        return getNotification_25();
     }
 
-    public NotificationCompat.Builder getNotification_25(String title, String content) {
-        return new NotificationCompat.Builder(getApplicationContext(), id)
-                .setContentTitle(title)
-                .setContentText(content)
-                .setSmallIcon(android.R.drawable.stat_notify_more)
-                .setAutoCancel(true);
+    @Override
+    public Notification getButton(NotificationUtils.Builder builder) {
+        converBuilder(builder);
+        if (builder.action.length > 0) {
+            for (NotificationCompat.Action a : builder.action) {
+                mBuilder.addAction(a);
+            }
+        }
+        return getNotification_25();
     }
 
+
+    public Notification getNotification_25() {
+        return mBuilder.build();
+    }
 
 }

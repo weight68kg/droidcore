@@ -18,6 +18,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import androidx.core.app.NotificationCompat;
+
+/**
+ * 创建 {@link Notification} 有两种方式：
+ * 1. {@link Notification.Builder#build()}
+ * 2. {@link NotificationCompat.Builder#build()}
+ * <p>
+ * 使用第二种方式创建是兼容低版本，
+ * 当 {@link android.os.Build.VERSION_CODES#O} 大于26，
+ * 会自动使用 第一种方法
+ */
 public class NotificationUtils extends ContextWrapper {
 
 
@@ -25,9 +36,9 @@ public class NotificationUtils extends ContextWrapper {
     private Notification notification;
     private int notifyId;
 
-    public NotificationUtils(Context context,int notifyId) {
+    public NotificationUtils(Context context, int notifyId) {
         super(context);
-        this.notifyId=notifyId;
+        this.notifyId = notifyId;
         //判断是否开启通知权限
         if (!isNotificationEnabled(context)) {
             goToSet((Activity) context);
@@ -53,7 +64,8 @@ public class NotificationUtils extends ContextWrapper {
 
 
     public void sendNotification() {
-        ((NotifycationBase) notifycationOb).getManager().notify(notifyId, notification);
+        ((NotifycationBase) notifycationOb)
+                .getManager().notify(notifyId, notification);
     }
 
 
@@ -83,43 +95,49 @@ public class NotificationUtils extends ContextWrapper {
      * 消息列表通知
      */
     public void messageList(Builder builder) {
-        notification=notifycationOb.getMessageList(builder);
+        notification = notifycationOb.getMessageList(builder);
         sendNotification();
     }
 
     /**
      * 大图通知
      */
-    public void bigIcon() {
-
+    public void bigIcon(Builder builder) {
+        sendNotification();
     }
 
     /**
      * 自定义通知
      */
-    public void customView() {
-
+    public void customView(Builder builder) {
+        sendNotification();
     }
 
     /**
      * 折叠双按钮通知
      */
-    public void cordButton() {
-
+    public void cordButton(Builder builder) {
+        notification = notifycationOb.getButton(builder);
+        sendNotification();
     }
 
     /**
      * 进度条通知
      */
-    public void progress() {
-
+    public void progress(Builder builder) {
+        sendNotification();
     }
 
     /**
      * 悬浮通知
      */
-    public void suspension() {
-
+    public void headsUp(Builder builder) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            notification = notifycationOb.getHeadsUp(builder);
+            sendNotification();
+        } else {
+            Toast.makeText(this, "版本低于Andriod5.0，无法体验HeadUp样式通知", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -187,18 +205,24 @@ public class NotificationUtils extends ContextWrapper {
     public static class Builder {
         String title;// 设置通知中心的标题
         String content;// 设置通知中心中的内容
-        long when;//时间
         PendingIntent contentIntent; //该通知要启动的Intent
-        int SmallIcon;// 设置顶部状态栏的小图标
         int largeIcon;//设置顶部状态栏的大图标
-        String ticker;// 在顶部状态栏中的提示信息
-        boolean autoCancel;/* 将AutoCancel设为true后，当你点击通知栏的notification后，它会自动被取消消失, 不设置的话点击消息后也不清除，但可以滑动删除*/
-        boolean ongoing;/*将Ongoing设为true 那么notification将不能滑动删除*/
+        int number;//角标数
         /*
          * 从Android4.1开始，可以通过以下方法，设置notification的优先级，
          * 优先级越高的，通知排的越靠前，优先级低的，不会在手机最顶部的状态栏显示图标
          */
-        int priority;
+        int priority;//优先级
+        Notification.Style style;//扩展
+        long when;//时间
+        int SmallIcon;// 设置顶部状态栏的小图标
+        String ticker;// 在顶部状态栏中的提示信息
+        boolean autoCancel;/* 将AutoCancel设为true后，当你点击通知栏的notification后，它会自动被取消消失, 不设置的话点击消息后也不清除，但可以滑动删除*/
+        boolean ongoing;/*将Ongoing设为true 那么notification将不能滑动删除*/
+        boolean sound;
+        boolean light;
+        boolean vibrate;
+
         /*
          * Notification.DEFAULT_ALL：铃声、闪光、震动均系统默认。
          * Notification.DEFAULT_SOUND：系统默认铃声。
@@ -208,6 +232,8 @@ public class NotificationUtils extends ContextWrapper {
         int defaults;
 
         ArrayList<String> messageList;
+
+        NotificationCompat.Action[] action;
 
         public String getTitle() {
             return title;
@@ -317,9 +343,60 @@ public class NotificationUtils extends ContextWrapper {
             return this;
         }
 
-        public Builder build() {
+        public int getNumber() {
+            return number;
+        }
+
+        public Builder setNumber(int number) {
+            this.number = number;
+            return this;
+        }
+
+        public Notification.Style getStyle() {
+            return style;
+        }
+
+        public Builder setStyle(Notification.Style style) {
+            this.style = style;
+            return this;
+        }
+
+        public NotificationCompat.Action[] getAction() {
+            return action;
+        }
+
+        public Builder setAction(NotificationCompat.Action... action) {
+            this.action = action;
+            return this;
+        }
+
+        public boolean isSound() {
+            return sound;
+        }
+
+        public Builder setSound(boolean sound) {
+            this.sound = sound;
+            return this;
+        }
+
+        public boolean isLight() {
+            return light;
+        }
+
+        public Builder setLight(boolean light) {
+            this.light = light;
+            return this;
+        }
+
+        public boolean isVibrate() {
+            return vibrate;
+        }
+
+        public Builder setVibrate(boolean vibrate) {
+            this.vibrate = vibrate;
             return this;
         }
     }
+
 
 }
