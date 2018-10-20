@@ -11,6 +11,7 @@ import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import java.lang.reflect.Field;
@@ -28,11 +29,13 @@ import androidx.core.app.NotificationCompat;
  * 使用第二种方式创建是兼容低版本，
  * 当 {@link android.os.Build.VERSION_CODES#O} 大于26，
  * 会自动使用 第一种方法
+ * <p>
+ * 当使用第二种方法时 需要创建通知渠道 {@link android.app.NotificationChannel}
  */
 public class NotificationUtils extends ContextWrapper {
 
 
-    private NotifycationOb notifycationOb;
+    private NotificationCallBack notificationCallBack;
     private Notification notification;
     private int notifyId;
 
@@ -46,9 +49,9 @@ public class NotificationUtils extends ContextWrapper {
         }
         //判断版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notifycationOb = new Notification26Utils(context);
+            notificationCallBack = new Notification26Utils(context);
         } else {
-            notifycationOb = new Notification25Utils(context);
+            notificationCallBack = new Notification25Utils(context);
         }
     }
 
@@ -59,12 +62,14 @@ public class NotificationUtils extends ContextWrapper {
      * @return
      */
     protected Notification getNotification(Builder builder) {
-        return notifycationOb.getSingleLine(builder);
+        return notificationCallBack.getSingleLine(builder);
     }
 
 
     public void sendNotification() {
-        ((NotifycationBase) notifycationOb)
+        if (notification == null) {
+        }
+        ((NotifycationBase) notificationCallBack)
                 .getManager().notify(notifyId, notification);
     }
 
@@ -86,7 +91,7 @@ public class NotificationUtils extends ContextWrapper {
             normalSingleLine(builder);
             Toast.makeText(this, "您的手机低于Android 4.1.2，不支持多行通知显示！！", Toast.LENGTH_SHORT).show();
         } else {
-            notification = notifycationOb.getNormalMoreLine(builder);
+            notification = notificationCallBack.getNormalMoreLine(builder);
             sendNotification();
         }
     }
@@ -95,7 +100,7 @@ public class NotificationUtils extends ContextWrapper {
      * 消息列表通知
      */
     public void messageList(Builder builder) {
-        notification = notifycationOb.getMessageList(builder);
+        notification = notificationCallBack.getMessageList(builder);
         sendNotification();
     }
 
@@ -103,6 +108,7 @@ public class NotificationUtils extends ContextWrapper {
      * 大图通知
      */
     public void bigIcon(Builder builder) {
+        notification = notificationCallBack.getBigIcon(builder);
         sendNotification();
     }
 
@@ -110,6 +116,7 @@ public class NotificationUtils extends ContextWrapper {
      * 自定义通知
      */
     public void customView(Builder builder) {
+        notification = notificationCallBack.getCustomView(builder);
         sendNotification();
     }
 
@@ -117,15 +124,45 @@ public class NotificationUtils extends ContextWrapper {
      * 折叠双按钮通知
      */
     public void cordButton(Builder builder) {
-        notification = notifycationOb.getButton(builder);
+        notification = notificationCallBack.getButton(builder);
         sendNotification();
     }
 
     /**
      * 进度条通知
      */
-    public void progress(Builder builder) {
-        sendNotification();
+    public void progress(final Builder builder) {
+
+        /*
+         * 因为进度条要实时更新通知栏也就说要不断的发送新的提示，所以这里不建议开启通知声音。
+         * 这里是作为范例，给大家讲解下原理。所以发送通知后会听到多次的通知声音。
+         */
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int incr;
+                for (incr = 0; incr <= 100; incr += 10) {
+                    // 参数：1.最大进度， 2.当前进度， 3.是否有准确的进度显示
+                    builder.setProgress(100, incr, false);
+                    // cBuilder.setProgress(0, 0, true);
+                    notification = notificationCallBack.getProgress(builder);
+                    sendNotification();
+                    builder.setPriority(NotificationCompat.PRIORITY_LOW);
+                    try {
+                        Thread.sleep(1 * 500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                // 进度满了后，设置提示信息
+                builder.setContent("下载完成").setProgress(0, 0, false);
+                notification = notificationCallBack.getProgress(builder);
+                sendNotification();
+            }
+        }).start();
+
+
     }
 
     /**
@@ -133,7 +170,7 @@ public class NotificationUtils extends ContextWrapper {
      */
     public void headsUp(Builder builder) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            notification = notifycationOb.getHeadsUp(builder);
+            notification = notificationCallBack.getHeadsUp(builder);
             sendNotification();
         } else {
             Toast.makeText(this, "版本低于Andriod5.0，无法体验HeadUp样式通知", Toast.LENGTH_SHORT).show();
@@ -219,9 +256,14 @@ public class NotificationUtils extends ContextWrapper {
         String ticker;// 在顶部状态栏中的提示信息
         boolean autoCancel;/* 将AutoCancel设为true后，当你点击通知栏的notification后，它会自动被取消消失, 不设置的话点击消息后也不清除，但可以滑动删除*/
         boolean ongoing;/*将Ongoing设为true 那么notification将不能滑动删除*/
-        boolean sound;
-        boolean light;
-        boolean vibrate;
+        boolean sound;//声音
+        boolean light;//提示灯
+        boolean vibrate;//震动
+        int progressMax;
+        int progress;
+        boolean progressIndeterminate;
+        RemoteViews remoteViews;
+
 
         /*
          * Notification.DEFAULT_ALL：铃声、闪光、震动均系统默认。
@@ -394,6 +436,24 @@ public class NotificationUtils extends ContextWrapper {
 
         public Builder setVibrate(boolean vibrate) {
             this.vibrate = vibrate;
+            return this;
+        }
+
+
+
+        public Builder setProgress(int max, int progress, boolean indeterminate) {
+            this.progressMax = max;
+            this.progress = progress;
+            this.progressIndeterminate = indeterminate;
+            return this;
+        }
+
+        public RemoteViews getRemoteViews() {
+            return remoteViews;
+        }
+
+        public Builder setRemoteViews(RemoteViews remoteViews) {
+            this.remoteViews = remoteViews;
             return this;
         }
     }

@@ -1,33 +1,17 @@
 package com.weight68kg.droidcore.utils.notify;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
-
-import androidx.core.app.NotificationCompat;
-
-import com.weight68kg.droidcore.R;
-
-import static android.app.Notification.PRIORITY_HIGH;
-import static android.app.Notification.VISIBILITY_SECRET;
-import static android.app.NotificationManager.IMPORTANCE_HIGH;
-import static android.app.NotificationManager.IMPORTANCE_UNSPECIFIED;
-import static androidx.core.app.NotificationCompat.BADGE_ICON_SMALL;
 
 /**
  * Created by weight68kg on 2018/9/10.
  */
-public class Notification26Utils extends Notification25Utils implements NotifycationOb {
+public class Notification26Utils extends Notification25Utils implements NotificationCallBack {
 
 
     public Notification26Utils(Context base) {

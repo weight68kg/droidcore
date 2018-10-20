@@ -2,7 +2,7 @@ package com.weight68kg.droidcore.utils.notify;
 
 import android.app.Notification;
 
-public interface NotifycationOb {
+public interface NotificationCallBack {
 
 
     //单行
@@ -20,5 +20,11 @@ public interface NotifycationOb {
     //悬浮
     Notification getHeadsUp(NotificationUtils.Builder builder);
 
+    //进度条
+    Notification getProgress(NotificationUtils.Builder builder);
+
+    //带按钮的
     Notification getButton(NotificationUtils.Builder builder);
+    //自定义
+    Notification getCustomView(NotificationUtils.Builder builder);
 }
