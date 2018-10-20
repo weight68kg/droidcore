@@ -59,7 +59,7 @@ public class NotificationUtils extends ContextWrapper {
      * @return
      */
     protected Notification getNotification(Builder builder) {
-        return notifycationOb.getNotificationInstance(builder);
+        return notifycationOb.getSingleLine(builder);
     }
 
 

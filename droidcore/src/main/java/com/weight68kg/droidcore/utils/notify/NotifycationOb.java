@@ -6,7 +6,7 @@ public interface NotifycationOb {
 
 
     //单行
-    Notification getNotificationInstance(NotificationUtils.Builder builder);
+    Notification getSingleLine(NotificationUtils.Builder builder);
 
     //多行
     Notification getNormalMoreLine(NotificationUtils.Builder builder);
