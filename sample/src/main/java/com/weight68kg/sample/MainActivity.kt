@@ -38,30 +38,32 @@ class MainActivity : AppCompatActivity() {
         }
         btn_natification.setOnClickListener {
 
-            //            NotificationUtils(this, 1)
-//                    .normalSingleLine(NotificationUtils.Builder()
-//                    .setTitle("这是一个通知标题")
-//                    .setContent("这是一个通知内容")
-//                            .setTicker("悬浮")
-//                    .build())
-//            NotificationUtils(this,1).normalMoreLine(NotificationUtils.Builder().setTitle("这是一个多行通知标题").setContent("这是一个多行通知内容，很长很长的哦。这是一个多行通知内容，很长很长的哦。").build())
+                        NotificationUtils(this, 1)
+                    .normalSingleLine(NotificationUtils.Builder()
+                    .setTitle("这是一个通知标题")
+                    .setContent("这是一个通知内容")
+                            )
+            NotificationUtils(this,2)
+                    .normalMoreLine(NotificationUtils.Builder()
+                            .setTitle("这是一个多行通知标题")
+                            .setContent("这是一个多行通知内容，很长很长的哦。这是一个多行通知内容，很长很长的哦。"))
+//
+            val messageList = ArrayList<String>()
+            messageList.add("文明,今晚有空吗？")
+            messageList.add("晚上跟我一起去玩吧?")
+            messageList.add("怎么不回复我？？我生气了！！")
+            messageList.add("我真生气了！！！！！你听见了吗!")
+            messageList.add("文明，别不理我！！！")
+            NotificationUtils(this,3).messageList(NotificationUtils.Builder()
+                    .setTitle("这是一个消息列表标题")
+                    .setContent("这是一个消息列表的内容")
+                    .setMessageList(messageList)
+                  )
 
-//            val messageList = ArrayList<String>()
-//            messageList.add("文明,今晚有空吗？")
-//            messageList.add("晚上跟我一起去玩吧?")
-//            messageList.add("怎么不回复我？？我生气了！！")
-//            messageList.add("我真生气了！！！！！你听见了吗!")
-//            messageList.add("文明，别不理我！！！")
-//            NotificationUtils(this,1).messageList(NotificationUtils.Builder()
-//                    .setTitle("这是一个消息列表标题")
-//                    .setContent("这是一个消息列表的内容")
-//                    .setMessageList(messageList)
-//                    .build())
-
-//            suspension()
-//            notify_progress()
-//            button()
-//            notify_bigPic()
+            suspension()
+            notify_progress()
+            button()
+            notify_bigPic()
             notify_customview()
 
         }
@@ -95,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         val rightPendingIntent = PendingIntent.getActivity(this,
                 0x1212, rightIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        NotificationUtils(this, 1)
+        NotificationUtils(this, 4)
                 .headsUp(NotificationUtils.Builder()
                         .setTitle(title)
                         .setSmallIcon(smallIcon)
@@ -124,7 +126,7 @@ class MainActivity : AppCompatActivity() {
         val rightPendIntent = PendingIntent.getActivity(this,
                 0x554, rightIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        NotificationUtils(this, 2)
+        NotificationUtils(this, 6)
                 .cordButton(NotificationUtils.Builder()
                         .setTitle("系统更新已下载完毕")
                         .setContent("Android 6.0.1")
@@ -134,8 +136,7 @@ class MainActivity : AppCompatActivity() {
                         .setVibrate(true)
                         .setLight(false)
                         .setAction(NotificationCompat.Action(lefticon, lefttext, leftPendIntent)
-                                , NotificationCompat.Action(righticon, righttext, rightPendIntent))
-                )
+                                , NotificationCompat.Action(righticon, righttext, rightPendIntent)))
     }
 
 
@@ -152,7 +153,7 @@ class MainActivity : AppCompatActivity() {
         val ticker = "您有一条新通知"
         //实例化工具类，并且调用接口
 
-        NotificationUtils(this, 2).progress(NotificationUtils.Builder()
+        NotificationUtils(this, 5).progress(NotificationUtils.Builder()
                 .setTitle("Android 6.0.1 下载")
                 .setContent("正在下载中")
                 .setTicker(ticker)
@@ -178,7 +179,7 @@ class MainActivity : AppCompatActivity() {
         val title = "已经抓取屏幕截图"
         val content = "触摸可查看您的屏幕截图"
         //实例化工具类，并且调用接口
-        NotificationUtils(this, 4).bigIcon(NotificationUtils.Builder()
+        NotificationUtils(this, 7).bigIcon(NotificationUtils.Builder()
                 .setTitle(title)
                 .setContent(content)
                 .setSmallIcon(smallIcon)
@@ -214,7 +215,7 @@ class MainActivity : AppCompatActivity() {
         remoteViews.setOnClickPendingIntent(R.id.button, Pintent)//定义按钮点击后的动作
         val smallIcon = R.drawable.yybao_smaillicon
         //实例化工具类，并且调用接口
-        NotificationUtils(this, 6).customView(NotificationUtils.Builder()
+        NotificationUtils(this, 8).customView(NotificationUtils.Builder()
                 .setRemoteViews(remoteViews)
                 .setContentIntent(pIntent)
                 .setSmallIcon(smallIcon)

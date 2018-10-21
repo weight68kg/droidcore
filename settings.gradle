@@ -1,1 +1,1 @@
-include ':droidcore', ':sample'
+include ':droidcore', ':sample', ':samplejava'

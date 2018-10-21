@@ -48,7 +48,7 @@ public class Notification25Utils extends NotifycationBase implements Notificatio
                 .setTicker(build.ticker)//悬浮title
                 .setBadgeIconType(BADGE_ICON_SMALL)//角标
                 .setSound(null)// 设置通知的提示音
-                .setNumber(99)//角标数
+                .setNumber(build.number)//角标数
                 .setAutoCancel(build.autoCancel)
                 .setDefaults(defaults);
     }

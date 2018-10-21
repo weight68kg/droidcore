@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.core.app.NotificationCompat;
 
@@ -34,7 +35,6 @@ import androidx.core.app.NotificationCompat;
  */
 public class NotificationUtils extends ContextWrapper {
 
-
     private NotificationCallBack notificationCallBack;
     private Notification notification;
     private int notifyId;
@@ -42,11 +42,20 @@ public class NotificationUtils extends ContextWrapper {
     public NotificationUtils(Context context, int notifyId) {
         super(context);
         this.notifyId = notifyId;
+        if (checkPermission(context)) return;
+        checkVersion(context);
+    }
+
+    private boolean checkPermission(Context context) {
         //判断是否开启通知权限
         if (!isNotificationEnabled(context)) {
             goToSet((Activity) context);
-            return;
+            return true;
         }
+        return false;
+    }
+
+    private void checkVersion(Context context) {
         //判断版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationCallBack = new Notification26Utils(context);
@@ -67,8 +76,6 @@ public class NotificationUtils extends ContextWrapper {
 
 
     public void sendNotification() {
-        if (notification == null) {
-        }
         ((NotifycationBase) notificationCallBack)
                 .getManager().notify(notifyId, notification);
     }
@@ -273,7 +280,7 @@ public class NotificationUtils extends ContextWrapper {
          */
         int defaults;
 
-        ArrayList<String> messageList;
+        List<String> messageList;
 
         NotificationCompat.Action[] action;
 
@@ -376,11 +383,11 @@ public class NotificationUtils extends ContextWrapper {
             return this;
         }
 
-        public ArrayList<String> getMessageList() {
+        public List<String> getMessageList() {
             return messageList;
         }
 
-        public Builder setMessageList(ArrayList<String> messageList) {
+        public Builder setMessageList(List<String> messageList) {
             this.messageList = messageList;
             return this;
         }
@@ -440,7 +447,6 @@ public class NotificationUtils extends ContextWrapper {
         }
 
 
-
         public Builder setProgress(int max, int progress, boolean indeterminate) {
             this.progressMax = max;
             this.progress = progress;
@@ -448,9 +454,6 @@ public class NotificationUtils extends ContextWrapper {
             return this;
         }
 
-        public RemoteViews getRemoteViews() {
-            return remoteViews;
-        }
 
         public Builder setRemoteViews(RemoteViews remoteViews) {
             this.remoteViews = remoteViews;
