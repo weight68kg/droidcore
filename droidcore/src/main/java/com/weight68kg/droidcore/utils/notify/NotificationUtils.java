@@ -64,6 +64,15 @@ public class NotificationUtils extends ContextWrapper {
         }
     }
 
+    public void clearAll() {
+        ((NotifycationBase) notificationCallBack)
+                .getManager().cancelAll();
+    }
+
+    public void clear(int notifyId) {
+        ((NotifycationBase) notificationCallBack)
+                .getManager().cancel(notifyId);
+    }
 
     /**
      * 获取 {@link android.app.Notification}
